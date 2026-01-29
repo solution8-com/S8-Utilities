@@ -13404,13 +13404,14 @@ function constructChatWebsocketUrl(e, t, n, r) {
 
 function parseBotChatMessageContent(e) {
     let t = v4_default(),
+        sanitized = e.replace(/<\/?verbatim>/gi, ""),
         n = {
             id: t,
             sender: "bot",
-            text: e
+            text: sanitized
         };
     try {
-        let r = JSON.parse(e);
+        let r = JSON.parse(sanitized);
         r.type === CHAT_NODE_MESSAGE_WITH_BUTTONS_TYPE && (n = {
             id: t,
             sender: "bot",
@@ -14017,7 +14018,11 @@ var openInNew_default = {
                 f = ref(!1),
                 h = ref(null),
                 g = ref(!1),
-                _ = computed(() => s.blockUserInput.value ? !0 : g.value ? !1 : d.value === "" || unref(c) || o.disabled ? .value === !0),
+                sanitizeInput = (value) => {
+                    let normalized = (value ?? "").replace(/[\r\n]+/g, " ").trim();
+                    return normalized.replace(/\s+/g, " ");
+                },
+                _ = computed(() => s.blockUserInput.value ? !0 : g.value ? !1 : sanitizeInput(d.value) === "" || unref(c) || o.disabled ? .value === !0),
                 y = computed(() => o.disabled ? .value === !0),
                 x = computed(() => S.value && unref(c) && !o.disabled ? .value),
                 S = computed(() => unref(o.allowFileUploads) === !0),
@@ -14114,7 +14119,7 @@ var openInNew_default = {
             }
             async function F(e) {
                 if (e.preventDefault(), _.value) return;
-                let t = d.value;
+                let t = sanitizeInput(d.value);
                 if (d.value = "", f.value = !0, s.ws && g.value) {
                     await P(s.ws, t);
                     return;
