@@ -96,7 +96,7 @@ var EMPTY_OBJ = {},
         let t = isString(e) ? Number(e) : NaN;
         return isNaN(t) ? e : t;
     },
-    _globalThis, getGlobalThis = () => _globalThis || = typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : typeof window < "u" ? window : typeof global < "u" ? global : {};
+    _globalThis, getGlobalThis = () => _globalThis || (typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : typeof window < "u" ? window : typeof global < "u" ? global : {});
 
 function normalizeStyle(e) {
     if (isArray$5(e)) {
