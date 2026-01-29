@@ -12208,7 +12208,7 @@ function processMessageResponse(e) {
 	if (t === "" && Object.keys(e).length > 0) try {
 		t = JSON.stringify(e, null, 2);
 	} catch {}
-	return t;
+	return stripVerbatimBlocks(t);
 }
 function handleEmptyStreamResponse(e) {
 	let { receivedMessage: t, messages: n } = e;
