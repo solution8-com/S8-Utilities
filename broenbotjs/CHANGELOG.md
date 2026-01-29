@@ -1,5 +1,6 @@
 # Changelog
 
 ## Unreleased
-- add `stripVerbatimBlocks` so `<verbatim>` … `</verbatim>` segments are removed before parsing webhook responses, guarding the renderer from injected fragments.
-- add `sanitizeInputTextForWebhook` so newline sequences convert to single spaces before we send them to the webhook, preventing empty/multiline payloads that trigger backend failures.
+- ensure webhook text is stripped of any `<verbatim>` tags before parsing so the renderer stays stable.
+- sanitize the chat textarea before sending (newline sequences become single spaces) so the webhook never receives empty/multiline input that causes the backend to drop the response.
+- remove the stale `chat.bundle.es.js` copy to keep repo diffs focused on the maxified source we maintain directly.
