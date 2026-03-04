@@ -210,7 +210,7 @@ te3l() {
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $api_key" \
     -d "{\"input\": \"$1\", \"model\": \"text-embedding-3-large\"}" \
-    -o lala.txt
+    -o "te3l-$1-$cph_timestamp.txt"
     
   echo "Embedding saved to te3l-$1-$cph_timestamp.txt"
 }
