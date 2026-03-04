@@ -74,10 +74,23 @@ jobs:
 
             let readme = "# CLI Utilities\n\nREADME generation failed.";
 
-            if (data && data.choices && data.choices.length > 0) {
-              readme = data.choices[0].message.content;
-            }
-
+              if (data?.choices?.[0]?.message?.content) {
+                readme = data.choices[0].message.content;
+              } else if (data?.output_text) {
+                readme = data.output_text;
+              } else if (Array.isArray(data?.output)) {
+                const textParts = [];
+                for (const item of data.output) {
+                  if (item?.content) {
+                    for (const c of item.content) {
+                      if (c?.text) textParts.push(c.text);
+                    }
+                  }
+                }
+                if (textParts.length) readme = textParts.join("\n");
+              }
+              
+            console.log(JSON.stringify(data, null, 2));
             fs.writeFileSync("cli-utilities/README.md", readme);
 
       - name: Commit README if changed
