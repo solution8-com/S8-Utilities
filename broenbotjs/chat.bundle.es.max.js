@@ -12359,7 +12359,7 @@ var _hoisted_1$235 = { class: "chat-get-started" }, GetStarted_default = /* @__P
 	}
 }), _sfc_main$8 = {}, _hoisted_1$234 = { class: "chat-powered-by" };
 function _sfc_render$8(e, t) {
-	return openBlock(), createElementBlock("div", _hoisted_1$234, [...t[0] ||= [createTextVNode(" Powered by ", -1), createBaseVNode("a", { href: "https://n8n.io?utm_source=n8n-external&utm_medium=widget-powered-by" }, "n8n", -1)]]);
+	return openBlock(), createElementBlock("div", _hoisted_1$234, [...t[0] ||= [createTextVNode(" Powered by ", -1), createBaseVNode("a", { href: "https://www.ai-raadgivning.dk/?utm_source=broenlab&utm_medium=widget-powered-by" }, "AI Rådgivning ApS", -1)]]);
 }
 var PoweredBy_default = /* @__PURE__ */ __plugin_vue_export_helper_default(_sfc_main$8, [["render", _sfc_render$8]]), _hoisted_1$233 = { class: "chat-get-started-footer" }, _hoisted_2$16 = { key: 0 }, GetStartedFooter_default = /* @__PURE__ */ defineComponent({
 	__name: "GetStartedFooter",
