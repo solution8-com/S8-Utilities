@@ -1,0 +1,3 @@
+[submodule "cli-utilities/air-productive-mcp"]
+	path = cli-utilities/air-productive-mcp
+	url = https://github.com/solution8-com/air-productive-mcp
