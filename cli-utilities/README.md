@@ -1,194 +1,221 @@
 ```markdown
-# 🛠️ ZSH Utility Functions & Aliases
+# Zsh Utility Functions & Aliases
 
-A curated set of Zsh utility functions and aliases for developer productivity, automation, and system hygiene. This README documents the `.zshrc` utilities, their usage, and prerequisites.
+A curated set of Zsh utility functions and aliases for developer productivity, automation, and system hygiene. This `.zshrc` snippet provides handy shortcuts for working with Git, Docker, file management, OpenAI, and more.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-1. **Clone or Copy** the `.zshrc` content into your `~/.zshrc` file.
+### 1. Prerequisites
+
+- **Zsh shell** (recommended: latest version)
+- **macOS** (some features are macOS-specific, e.g., Keychain, `cupsfilter`)
+- **Homebrew** (for installing dependencies)
+- **Optional utilities** (see [Prerequisites](#prerequisites) below)
+
+### 2. Installation
+
+1. **Clone or copy** the `.zshrc` content into your `~/.zshrc` file.
+
 2. **Reload your shell**:
+
    ```sh
    source ~/.zshrc
    ```
-3. **(Recommended)** Install required tools (see [Prerequisites](#-prerequisites)).
+
+3. **Install required tools** (see [Prerequisites](#prerequisites)).
 
 ---
 
-## 📝 Function List
+## Function & Alias List
 
-| Function / Alias       | Description                                                         |
-|------------------------|---------------------------------------------------------------------|
-| `mkcd`                 | Create a directory and move into it                                 |
-| `killit`               | Kill all processes by name                                          |
-| `extract`              | Extract almost any compressed file                                  |
-| `glog`                 | Visualize git log as decorated graph                                |
-| `duh`                  | Disk usage in human-readable format                                 |
-| `brewup`               | Update & clean all Homebrew packages (macOS)                       |
-| `ssh-agent-connect`    | Start ssh-agent and add default key                                 |
-| `generate_random_pdf`  | Generate a random PDF with N characters                             |
-| `gi`                   | Add filename to `.gitignore`                                        |
-| `te3l`                 | Get OpenAI text-embedding-3-large embedding for a string            |
-| `del`                  | Remove a file (with existence check)                                |
-| `zshrc-push`           | Backup `.zshrc` to S8-Utilities repo (with GitHub token)            |
-| `symlink`              | Create a symbolic link                                              |
-
-**Aliases:**
-
-- `ll`           — List files (long, human-readable)
-- `grep`         — Grep with color output
-- `gs`, `ga`, `gcm`, `gp`, `gpl` — Git shortcuts
-- `pip`, `pip3`  — Reminders to use `uv pip install` or `python -m pip`
-- `dcu`, `dcd`, `dps` — Docker Compose shortcuts
-- `jsondiff-regent` — Run a JSON diff script
-- `spdf`         — Launch Stirling-PDF Docker container and open browser
-- `n8n`          — Launch n8n Docker container and open browser
-- `zshrc-backup` — Alias for `zshrc-push`
+| Name                  | Type      | Description                                                         |
+|-----------------------|-----------|---------------------------------------------------------------------|
+| `mkcd`                | Function  | Create a directory and move into it                                 |
+| `killit`              | Function  | Kill all processes matching a name                                  |
+| `extract`             | Function  | Extract almost any compressed file                                  |
+| `glog`                | Function  | Show a graphical Git log                                            |
+| `duh`                 | Function  | Disk usage (human-readable, default depth 2)                        |
+| `brewup`              | Function  | Update, upgrade, and clean Homebrew packages                        |
+| `ssh-agent-connect`   | Function  | Start SSH agent and add default key                                 |
+| `generate_random_pdf` | Function  | Generate a random PDF file with N characters                        |
+| `te3l`                | Function  | Embed a text string or PDF into OpenAI embeddings                   |
+| `del`                 | Function  | Remove a file (with error check)                                    |
+| `zshrc-push`          | Function  | Auto-commit and push `.zshrc` to S8-Utilities repo                  |
+| `symlink`             | Function  | Create a symbolic link (symlink)                                    |
+| `gi`                  | Function  | Add directories/files/extensions to `.gitignore` (unique)           |
+| `spaceremover`        | Function  | Rename files/directories, replacing spaces with underscores         |
+| **Aliases:**          | Alias     |                                                                     |
+| `ll`                  | Alias     | `ls -lahG` (long, all, human, color)                               |
+| `grep`                | Alias     | `grep --color=auto`                                                 |
+| `gs`, `ga`, `gcm`, `gcm-fast`, `gp`, `gpl` | Alias/Function | Git shortcuts                  |
+| `pip`, `pip3`         | Alias     | Warn to use `uv pip install` or `python -m pip`                    |
+| `dcu`, `dcd`, `dps`   | Alias     | Docker Compose shortcuts                                            |
+| `jsondiff-regent`     | Alias     | Run a specific Python JSON diff script                              |
+| `spdf`                | Alias     | Launch Stirling-PDF container and open browser                      |
+| `n8n`                 | Alias     | Launch n8n container and open browser                               |
+| `zshrc-backup`        | Alias     | Alias for `zshrc-push`                                             |
 
 ---
 
-## 💡 Usage Examples
+## Usage Examples
 
-### Directory & File Utilities
+### Directory & File Management
 
 ```sh
 mkcd myfolder
 # → Creates 'myfolder' and enters it
 
-del myfile.txt
-# → Deletes 'myfile.txt' if it exists
-```
+del file.txt
+# → Deletes file.txt if it exists
 
-### Process & System
-
-```sh
-killit node
-# → Kills all processes named 'node'
-
-duh 3
-# → Shows disk usage up to depth 3 (default: 2)
-```
-
-### Archives
-
-```sh
 extract archive.tar.gz
-# → Extracts the archive based on its extension
+# → Extracts archive.tar.gz (supports .zip, .rar, .7z, etc.)
+
+spaceremover
+# → Renames all files/dirs in current tree, replacing spaces with underscores
+
+symlink /path/to/target linkname
+# → Creates a symlink named 'linkname' pointing to 'target'
 ```
 
 ### Git Shortcuts
 
 ```sh
-glog
-# → Pretty git log graph
+gs
+# → git status
 
-gi .env
-# → Adds '.env' to .gitignore
+ga
+# → git add .
+
+gcm "Commit message"
+# → git commit -m "Commit message"
+
+gcm-fast "Quick commit"
+# → git commit --no-verify -m "Quick commit"
+
+glog
+# → git log --oneline --graph --decorate --all
+
+gi dir node_modules build
+# → Add 'node_modules/' and 'build/' to .gitignore (if not already present)
+
+gi file .env
+# → Add '.env' to .gitignore
+
+gi filetype log
+# → Add '*.log' to .gitignore
 ```
 
 ### Docker Shortcuts
 
 ```sh
 dcu
-# → docker-compose up
+# → docker compose up
+
+dcd
+# → docker compose down
+
+dps
+# → docker ps
 
 spdf
-# → Launches Stirling-PDF in Docker, waits for health, opens browser
+# → Launch Stirling-PDF Docker container and open browser when ready
 
 n8n
-# → Launches n8n in Docker, waits for health, opens browser
+# → Launch n8n Docker container and open browser when ready
 ```
 
-### Homebrew
+### Disk, Homebrew, SSH
 
 ```sh
+duh 3
+# → Disk usage, depth 3
+
 brewup
-# → Updates, upgrades, and cleans Homebrew packages
+# → Update, upgrade, and cleanup Homebrew packages
+
+ssh-agent-connect
+# → Start SSH agent and add ~/.ssh/id_rsa
 ```
 
-### OpenAI Embeddings
+### OpenAI / PDF Tools
 
 ```sh
-te3l "hello world"
-# → Saves embedding to a timestamped file (requires OpenAI API key in Keychain)
+generate_random_pdf 1000 /tmp/random.pdf
+# → Create a PDF with 1000 random characters at /tmp/random.pdf
+
+te3l "Some text to embed"
+# → Get OpenAI embedding for a string, output to te3l-<timestamp>.txt
+
+te3l /path/to/file.pdf
+# → Extract text from PDF, get OpenAI embedding, output to te3l-<timestamp>.txt
 ```
 
-### Random PDF Generation
-
-```sh
-generate_random_pdf 1000 ~/Desktop/random.pdf
-# → Creates a PDF with 1000 random characters
-```
-
-### Symlinks
-
-```sh
-symlink /path/to/target mylink
-# → Creates symlink 'mylink' pointing to target
-```
-
-### Zshrc Backup
+### .zshrc Backup
 
 ```sh
 zshrc-push
-# → Pushes your .zshrc to S8-Utilities repo (requires GitHub token in Keychain)
+# → Auto-commit and push your .zshrc to solution8-com/S8-Utilities on GitHub
+
 zshrc-backup
-# → Same as above (alias)
+# → Alias for zshrc-push
 ```
 
 ---
 
-## ⚙️ Prerequisites
+## Prerequisites
 
-Some functions require additional tools or environment setup:
+Some functions require additional tools:
 
-- **General**
-  - [Zsh](https://www.zsh.org/)
-  - [git](https://git-scm.com/)
-  - [curl](https://curl.se/)
-
-- **Archive Extraction**
-  - `unrar`, `unzip`, `7z`, `bunzip2`, `gunzip`, `tar`, `uncompress`
-
-- **PDF Generation**
-  - `cupsfilter` (usually present on macOS with CUPS installed)
-
-- **OpenAI Embeddings**
-  - macOS Keychain entry for API key:
-    ```sh
-    security add-generic-password -a "$(whoami)" -s "openai_api_key" -w "sk-..." 
-    ```
-  - Internet access
-
-- **zshrc-push (Backup)**
-  - macOS Keychain entry for GitHub token:
-    ```sh
-    security add-generic-password -a "$(whoami)" -s "github_dawg_cli_cmds" -w "ghp_..." 
-    ```
-  - Access to [solution8-com/S8-Utilities](https://github.com/solution8-com/S8-Utilities) repo
-
-- **Docker Utilities**
-  - [Docker](https://www.docker.com/) and [docker-compose](https://docs.docker.com/compose/)
-
-- **Homebrew**
-  - [Homebrew](https://brew.sh/) (macOS package manager)
-
-- **Other**
-  - `xdg-open` or `open` (for opening URLs, Linux/macOS)
-  - `security` (macOS Keychain CLI)
+- **Homebrew**: [Install here](https://brew.sh/)
+- **pdftotext** (for `te3l` PDF embedding):  
+  ```sh
+  brew install poppler
+  ```
+- **cupsfilter** (for `generate_random_pdf`):  
+  Pre-installed on macOS; otherwise, install CUPS.
+- **7z** (for extracting .7z):  
+  ```sh
+  brew install p7zip
+  ```
+- **unrar** (for extracting .rar):  
+  ```sh
+  brew install unrar
+  ```
+- **uv** (for pip hygiene):  
+  [uv project](https://github.com/astral-sh/uv)
+- **jq** (for JSON processing, if needed elsewhere):  
+  ```sh
+  brew install jq
+  ```
+- **OpenAI API Key** (for `te3l`):  
+  Store in macOS Keychain:
+  ```sh
+  security add-generic-password -a $(whoami) -s "openai_api_key" -w "sk-..."
+  ```
+- **GitHub Token** (for `zshrc-push`):  
+  Store in macOS Keychain:
+  ```sh
+  security add-generic-password -a $(whoami) -s "github_s8_utilities" -w "ghp_..."
+  ```
 
 ---
 
-## 🗂️ Notes
+## Notes
 
-- **PATH** is carefully constructed to include Homebrew, Volta, Orbstack, Go, and Antigravity directories.
-- **Aliases** for `pip` and `pip3` remind you to use [uv](https://github.com/astral-sh/uv) or `python -m pip` for hygiene.
-- **Deduplication**: `typeset -U path` ensures no duplicate entries in `$PATH`.
+- **PATH**: The `.zshrc` sets up a robust `PATH` for Homebrew, Go, Volta, and other tools.
+- **Aliases & Functions**: Designed for macOS, but many work cross-platform.
+- **Deduplication**: The `typeset -U path` ensures no duplicate entries in your `$PATH`.
 
 ---
 
-## 🧑‍💻 Contribution
+## License
 
-Feel free to fork and adapt these utilities for your own workflow!
+MIT License (c) Solution8 and contributors.
+
+---
+
+**Happy hacking!**
 ```
