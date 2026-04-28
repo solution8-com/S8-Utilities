@@ -30,6 +30,9 @@ export PATH="$HOME/.ch/bin:$PATH"
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 
+# Added by Antigravity
+export PATH="/Users/thedawgctor/.antigravity/antigravity/bin:$PATH"
+
 # ====== ENVIRONMENT VARIABLES ======
 
 export NODE_ENV="development"
@@ -40,11 +43,18 @@ export NODE_ENV="development"
 
 # ====== ALIASES ======
 alias ll='ls -lahG'              # Long list with hidden files and human-readable sizes
-alias ll='ls -lah'                 # Long list
 alias grep='grep --color=auto'   # Grep with colorized output by default
 alias gs='git status'
 alias ga='git add .'
-alias gcm='git commit -m'
+
+function gcm() {
+  git commit -m "$*"
+}
+
+function gcm-fast() {
+  git commit --no-verify -m "$*"
+}
+
 alias gp='git push'
 alias gpl='git pull'
 
@@ -53,8 +63,8 @@ alias pip='echo "Use: uv pip install or python -m pip"'
 alias pip3='echo "Use: uv pip install or python -m pip"'
 
 # Docker shortcuts
-alias dcu="docker-compose up"
-alias dcd="docker-compose down"
+alias dcu="docker compose up"
+alias dcd="docker compose down"
 alias dps="docker ps"
 
 # getting json diff of global evoluaion user reports
@@ -178,49 +188,82 @@ generate_random_pdf() {
     rm -f "$temp_text_file"
 }
 
-gi() {
-  if [[ -z $1 ]]; then
-    echo "Usage: gi <filename>"
-    return 1
-  fi
-
-  if [[ ! -f .gitignore ]]; then
-    touch .gitignore
-  fi
-
-  echo "$1" >> .gitignore
-  echo "$1 added to .gitignore"
-}
-
+# te3l – embed a plain text string **or** the text of a PDF file
 te3l() {
+  # --------------------------------------------------------------
+  # Usage check – exactly one argument required
+  # --------------------------------------------------------------
   if [ $# -ne 1 ]; then
-    echo "Usage: te3l 'your text string'"
+    echo "Usage: te3l '<text string>'   OR   te3l /path/to/file.pdf"
     return 1
   fi
-  
+
+  local input="$1"
+
+  # --------------------------------------------------------------
+  # Retrieve OpenAI API key from the macOS Keychain
+  # --------------------------------------------------------------
   local api_key=$(security find-generic-password -a "$(whoami)" -s "openai_api_key" -w 2>/dev/null)
   if [ -z "$api_key" ]; then
-    echo "Error: OpenAI API key not found in Keychain. Run: security add-generic-password -a \$(whoami) -s 'openai_api_key' -w 'sk-your-key'"
+    echo "Error: OpenAI API key not found in Keychain."
+    echo "Run: security add-generic-password -a \$(whoami) -s 'openai_api_key' -w 'sk-your-key'"
     return 1
   fi
 
+  # --------------------------------------------------------------
+  # If the argument is a PDF file, extract its text
+  # --------------------------------------------------------------
+  if [[ -f "$input" && "$input" == *.pdf ]]; then
+    # Ensure pdftotext is available
+    if ! command -v pdftotext >/dev/null 2>&1; then
+      echo "Error: 'pdftotext' is required to embed PDFs but is not installed."
+      echo "Install via Homebrew: brew install poppler"
+      return 1
+    fi
+
+    # Create a temporary file for the extracted text
+    local tmp_txt
+    tmp_txt=$(mktemp /tmp/te3l_pdf_XXXX.txt)
+
+    # Extract text; -layout keeps the visual layout (optional)
+    pdftotext -layout "$input" "$tmp_txt"
+
+    # Read the extracted text into a variable (preserve newlines)
+    input=$(cat "$tmp_txt")
+    # Cleanup the temporary file
+    rm -f "$tmp_txt"
+  fi
+
+  # --------------------------------------------------------------
+  # Timestamp for a unique output filename (Copenhagen timezone)
+  # --------------------------------------------------------------
   local cph_timestamp=$(TZ=Europe/Copenhagen date '+%m-%d-%H:%M:%S')
-  
+  local out_file="te3l-${cph_timestamp}.txt"
+
+  # --------------------------------------------------------------
+  # Make the API request – note that we JSON‑encode the text safely
+  # --------------------------------------------------------------
+  # Escape double‑quotes and backslashes for correct JSON payload
+  local escaped_input=$(printf '%s' "$input" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
+  # The payload is: {"input": "<escaped_input>", "model": "text-embedding-3-large"}
   curl -s -X POST https://api.openai.com/v1/embeddings \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $api_key" \
-    -d "{\"input\": \"$1\", \"model\": \"text-embedding-3-large\"}" \
-    -o "te3l-$1-$cph_timestamp.txt"
-    
-  echo "Embedding saved to te3l-$1-$cph_timestamp.txt"
+    -d "{\"input\": $escaped_input, \"model\": \"text-embedding-3-large\"}" \
+    -o "$out_file"
+
+  # echo "Embedding saved to te3l-${cph_timestamp}.txt"
+  echo "Embedding saved to $(realpath "$out_file")"   # ← NEW: absolute path output
+
 }
+
 
 del() { if [ -f "$1" ]; then rm -rf "$1"; else echo "Error: not a file"; fi; }
 
 # Auto-commit .zshrc function
 zshrc-push() {
 
-  local token=$(security find-generic-password -a "$(whoami)" -s "github_dawg_cli_cmds" -w 2>/dev/null)
+  local token=$(security find-generic-password -a "$(whoami)" -s "github_s8_utilities" -w 2>/dev/null)
   
   if [ -z "$token" ]; then
     echo "Error: GitHub token for S8-Utilities not found. Store it:"
@@ -272,9 +315,90 @@ alias zshrc-backup="zshrc-push"
 # Automatically deduplicate $path array in Zsh (optional)
 typeset -U path
 
-# Added by Antigravity
-export PATH="/Users/thedawgctor/.antigravity/antigravity/bin:$PATH"
-
-# Added by Antigravity
-export PATH="/Users/thedawgctor/.antigravity/antigravity/bin:$PATH"
 symlink() { if [ "$#" -ne 2 ]; then echo "Usage: symlink <target> <name>"; return 1; fi; ln -s "$1" "$2"; }
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export VOYAGEAI_KEY="pa-vXAy0nyIIo7G4i-r7cNsZXHlZhFSqRGzBYwwwupR0Yj"
+gi() {
+  local mode="$1"
+  shift || true
+  local gitignore=".gitignore"
+  [[ -e "$gitignore" ]] || : > "$gitignore"
+
+  _gi_append_unique() {
+    local entry="$1"
+    grep -Fxq -- "$entry" "$gitignore" || printf '%s\n' "$entry" >> "$gitignore"
+  }
+
+  case "$mode" in
+    dir)
+      local p
+      if [[ $# -lt 1 ]]; then
+        printf 'usage: gi dir <dir> [dir ...]\n' >&2
+        return 1
+      fi
+
+      for p in "$@"; do
+        [[ -d "$p" ]] || {
+          printf 'gi: not a directory: %s\n' "$p" >&2
+          continue
+        }
+        _gi_append_unique "${p%/}/"
+      done
+      ;;
+
+    file)
+      if [[ $# -ne 1 ]]; then
+        printf 'usage: gi file <file>\n' >&2
+        return 1
+      fi
+
+      [[ -f "$1" ]] || {
+        printf 'gi: not a file: %s\n' "$1" >&2
+        return 1
+      }
+
+      _gi_append_unique "$1"
+      ;;
+
+    filetype)
+      if [[ $# -ne 1 ]]; then
+        printf 'usage: gi filetype "ext"\n' >&2
+        return 1
+      fi
+
+      local ext="$1"
+      ext="${ext#.}"
+      _gi_append_unique "*.${ext}"
+      ;;
+
+    *)
+      printf 'usage:\n' >&2
+      printf '  gi dir <dir> [dir ...]\n' >&2
+      printf '  gi file <file>\n' >&2
+      printf '  gi filetype "ext"\n' >&2
+      return 1
+      ;;
+  esac
+}
+
+# Rename files that contain spaces, replacing spaces with underscores.
+# Usage:   spaceremover
+# --------------------------------------------------------------
+spaceremover() {
+  # Find all files (and directories) whose name contains a space,
+  # processing deepest paths first (--depth) so parent directories are
+  # renamed after their contents.
+  find . -depth -name '* *' -print0 |
+    while IFS= read -r -d '' f; do
+      # Directory part (may be '.' for top‑level files)
+      d=${f%/*}
+      # Base name without path
+      b=${f##*/}
+      # New name with spaces replaced by underscores
+      new="${b// /_}"
+      # Only rename if the target does NOT already exist
+      if [[ "$b" != "$new" && ! -e "$d/$new" ]]; then
+        mv -- "$f" "$d/$new"
+      fi
+    done
+}
